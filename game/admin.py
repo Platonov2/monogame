@@ -1,9 +1,8 @@
 from django.contrib import admin
+from .models import *
 
-# Register your models here.
 
-from game import models
-admin.site.register(models.UsersInfo)
-admin.site.register(models.operatingAccuracy)
-admin.site.register(models.state)
-admin.site.register(models.result)
+admin.site.register(UsersInfo)
+admin.site.register(OperatingAccuracy)
+admin.site.register(State)
+admin.site.register(Result)
