@@ -1,0 +1,12 @@
+python manage.py runserver
+
+python manage.py createsuperuser
+root
+
+DjangoPass
+
+1234
+99pass99
+
+111
+zxc555zxc
