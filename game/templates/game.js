@@ -157,12 +157,11 @@ class Monoring
         context.closePath();
 
         // mean accuracy text
-        var meanAccuracy = this.getMeanAccuracy();
         context.fillStyle = getRGBAString(this.fontColor, this.totalAlpha);
         context.font = `${this.fontSize}em ${FONT_FAMILY}`;
         context.textAlign = 'center';
         context.textBaseline = 'middle';
-        context.fillText(`${(meanAccuracy * 100).toFixed(2)}%`, this.x, this.y + this.radius + this.width * 2.5);
+        context.fillText(`${(this.meanAccuracy * 100).toFixed(2)}%`, this.x, this.y + this.radius + this.width * 2.5);
         
         
         var fontColorRgb = hexToRgb(this.fontColor);
@@ -230,7 +229,12 @@ class Monoring
     }
 
     getMeanAccuracy() {
-        return (this.accuracyHistory.length == 0) ? 0 : this.accuracyHistory.reduce((sum, value) => sum += value, 0) / this.accuracyHistory.length;
+        var length = this.accuracyHistory.length;
+        if (length == 0) return 0;
+        var pluses = this.accuracyHistory.filter(accuracy => accuracy >= 0).length;
+        var minuses = length - pluses;
+        var sign = pluses > minuses ? 1 : -1;
+        return sign * this.accuracyHistory.reduce((sum, value) => sum += Math.abs(value), 0) / length;
     }
 
     update() {
@@ -296,7 +300,7 @@ class Monoring
             }
             this.accuracyHistory.push(accuracy);
             this.lastAccuracy = accuracy;
-            this.meanAccuracy = this.accuracyHistory.reduce((sum , a) => sum + a, 0) / this.accuracyHistory.length;
+            this.meanAccuracy = this.getMeanAccuracy();
             this.startAccuracyAnimation();
         }
     }
