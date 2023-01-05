@@ -66,17 +66,17 @@ class Monoring
     key,        // keyboard key for current monoring
     x, y,       // coordinates of center of ring
     radius, width,
-    ringColor, circleColor, checkLineColor = '#333333',
-    startAngle=PI/2, angularSpeed=0.01,
+    ringColor, circleColor, checkLineColor = '#333333', 
+    startAngle=PI/2, angularSpeed=0.01, 
     checkLineOffset=15, checkLineWidth=10,
     circleShadowBlur=7, circleShadowRadius=5, circleWidthOffset=-5,
     fontColor="#333333", fontSize=10,
     lastAccuracyPositiveColor="#00cc00", lastAccuracyNegativeColor="#cc0000",
     fadeAnimationMaxTime=2, accuracyAnimationMaxTime=5, hintAnimationMaxTime=1
     ) {
-
+    
         this.key = key;
-
+        
         this.accuracyHistory = [];
         this.lastAccuracy = 0;
         this.meanAccuracy = 0;
@@ -97,7 +97,7 @@ class Monoring
         this.ringColor = ringColor;
         this.circleColor = circleColor;
         this.checkLineColor = checkLineColor;
-
+        
         this.startAngle = normalizeAngle(-startAngle);
         this.angle = this.startAngle;
         this.angularSpeed = angularSpeed;
@@ -157,16 +157,15 @@ class Monoring
         context.closePath();
 
         // mean accuracy text
-        var meanAccuracy = this.getMeanAccuracy();
         context.fillStyle = getRGBAString(this.fontColor, this.totalAlpha);
         context.font = `${this.fontSize}em ${FONT_FAMILY}`;
         context.textAlign = 'center';
         context.textBaseline = 'middle';
-        context.fillText(`${(meanAccuracy * 100).toFixed(2)}%`, this.x, this.y + this.radius + this.width * 2.5);
-
-
+        context.fillText(`${(this.meanAccuracy * 100).toFixed(2)}%`, this.x, this.y + this.radius + this.width * 2.5);
+        
+        
         var fontColorRgb = hexToRgb(this.fontColor);
-
+        
         // hint text
         if (this.hintFadeIn || this.hintFadeOut) {
             var animationTime = Math.min(this.hintAnimationTime, this.hintAnimationMaxTime) / this.hintAnimationMaxTime;
@@ -182,7 +181,7 @@ class Monoring
             // last accuracy
             var partTime = this.accuracyAnimationMaxTime / 10;
             var alpha = (this.accuracyAnimationTime < partTime ) ? lerp(0, 1, this.accuracyAnimationTime/partTime) : lerp(1, 0, (this.accuracyAnimationTime - partTime)/partTime);
-
+            
             context.fillStyle = `rgba(${fontColorRgb.r}, ${fontColorRgb.g}, ${fontColorRgb.b}, ${alpha})`;
             context.font = `${this.fontSize}em ${FONT_FAMILY}`;
             context.textAlign = 'center';
@@ -220,7 +219,7 @@ class Monoring
         context.shadowOffsetX = this.circleShadowRadius*Math.cos(-this.angle);
         context.shadowOffsetY = this.circleShadowRadius*Math.sin(-this.angle);
         context.beginPath();
-        context.arc(this.radius*Math.cos(this.angle) + this.x, this.radius*Math.sin(this.angle) + this.y,
+        context.arc(this.radius*Math.cos(this.angle) + this.x, this.radius*Math.sin(this.angle) + this.y, 
                     this.width/2 + this.circleWidthOffset, 0, TWOPI, false);
         context.fill();
         context.closePath();
@@ -230,12 +229,17 @@ class Monoring
     }
 
     getMeanAccuracy() {
-        return (this.accuracyHistory.length == 0) ? 0 : this.accuracyHistory.reduce((sum, value) => sum += value, 0) / this.accuracyHistory.length;
+        var length = this.accuracyHistory.length;
+        if (length == 0) return 0;
+        var pluses = this.accuracyHistory.filter(accuracy => accuracy >= 0).length;
+        var minuses = length - pluses;
+        var sign = pluses > minuses ? 1 : -1;
+        return sign * this.accuracyHistory.reduce((sum, value) => sum += Math.abs(value), 0) / length;
     }
 
     update() {
         var dt = DT * 1e-3;
-
+        
         this.angle += this.angularSpeed * dt;
 
         if (this.animateAccuracy) {
@@ -296,7 +300,7 @@ class Monoring
             }
             this.accuracyHistory.push(accuracy);
             this.lastAccuracy = accuracy;
-            this.meanAccuracy = this.accuracyHistory.reduce((sum , a) => sum + a, 0) / this.accuracyHistory.length;
+            this.meanAccuracy = this.getMeanAccuracy();
             this.startAccuracyAnimation();
         }
     }
@@ -383,7 +387,7 @@ function update(context, monorings, gameState) {
 
 // --------------------------------------------------------------
 
-//                                           key  x                   y    radius width   ring clr    circle clr  line clr      start angle
+//                                           key  x                   y    radius width   ring clr    circle clr  line clr      start angle       
 var leftMonoring    = new Monoring(context, "q", CENTER_X/2,       CENTER_Y,   250, 50,    '#d99694',  '#e46c0a',     '#333333',    getRandomAngle(), getRandomBetween(PI/5, PI/2));
 var middleMonoring  = new Monoring(context, "w", CENTER_X,     3*CENTER_Y/4,   500, 75,    '#3a5f8b',  '#e7706d',     '#333333',    getRandomAngle(), getRandomBetween(PI/5, PI/2));
 var rightMonoring   = new Monoring(context, "e", CENTER_X*3/2,     CENTER_Y,   250, 50,    '#d99694',  '#e46c0a',     '#333333',    getRandomAngle(), getRandomBetween(PI/5, PI/2));
@@ -391,7 +395,7 @@ var monorings = {
     left    : leftMonoring,
     middle  : middleMonoring,
     right   : rightMonoring,
-    array   : [leftMonoring, middleMonoring, rightMonoring]
+    array   : [leftMonoring, middleMonoring, rightMonoring] 
 }
 monorings.left.fontSize = monorings.right.fontSize = 5;
 
