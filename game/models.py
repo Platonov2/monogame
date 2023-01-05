@@ -1,28 +1,33 @@
 from django.db import models
 
-# Create your models here.
 
 class UsersInfo(models.Model):
-    name = models.CharField(max_length=32)
-    surname=models.CharField(max_length=32)
+    username = models.CharField(max_length=30)
+    first_name = models.CharField(max_length=32)
+    last_name = models.CharField(max_length=32)
+    password = models.CharField(max_length=30)
 
-class  operatingAccuracy(models.Model):
-       user=models.ForeignKey(UsersInfo,on_delete=models.CASCADE)
-       #Положительное или отрицательное значение после каждого клика
-       left_accuracy=models.FloatField()
-       middle_accuracy=models.FloatField()
-       right_accuracy=models.FloatField()
-
-class state(models.Model):
-      user=models.ForeignKey(UsersInfo,on_delete=models.CASCADE)
-      previous_stressIndex = models.FloatField()
-      after_stressIndex = models.FloatField()
-      strart_lf_hf = models.FloatField()
-      end_lf_hf = models.FloatField()
+    class Meta:
+        verbose_name = "Пользователь"
+        verbose_name_plural = "Пользователи"
+        ordering = ['last_name']
 
 
-class result(models.Model):
+class OperatingAccuracy(models.Model):
     user = models.ForeignKey(UsersInfo, on_delete=models.CASCADE)
-    monotony=models.BooleanField()
+    left_accuracy = models.FloatField()
+    middle_accuracy = models.FloatField()
+    right_accuracy = models.FloatField()
 
 
+class State(models.Model):
+    user = models.ForeignKey(UsersInfo, on_delete=models.CASCADE)
+    previous_stressIndex = models.FloatField()
+    after_stressIndex = models.FloatField()
+    start_lf_hf = models.FloatField()
+    end_lf_hf = models.FloatField()
+
+
+class Result(models.Model):
+    user = models.ForeignKey(UsersInfo, on_delete=models.CASCADE)
+    monotony = models.BooleanField()

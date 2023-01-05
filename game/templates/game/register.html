@@ -1,0 +1,22 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+    <head>
+        <meta charset="UTF-8">
+        <title>Регистрация</title>
+        <link type="text/css" href="{% static 'game/css/styles.css' %}" rel="stylesheet" />
+    </head>
+    <body>
+        <form method="post" class="all-form">
+            {% csrf_token %}
+            {% for f in form %}
+                <p class = "centered"><label class="form-label" for="{{ f.id_for_label }}">{{f.label}}: </label>{{ f }}</p>
+                <div class="form-error">{{ f.errors }}</div>
+            {% endfor %}
+            <p class = "centered"><button type="submit">Регистрация</button></p>
+            <br>
+            <p class = "centered"><a  class="form-label" href="{% url 'login' %}">Войти</a></p>
+        </form>
+        </div>
+    </body>
+</html>
